@@ -1,68 +1,54 @@
-const getNewLocation = (x, y, size) => [size - 1 - y, x];
+function getNewLocation(x, y, width, height) {
+  var newY = width - 1 - x;
+  var newX = y;
+  var newCoordinate = height * newY + newX;
+  return newCoordinate;
+}
 
-const generateChunks = (canvasSize, chunkSize) => {
-  const totalChunks = Math.pow(canvasSize / chunkSize, 2);
-  const chunkIncrement = chunkSize;
-  const coordinateArray = [];
+const turnImageLinear = (pic) => {
+  var { rgbaMatrix, width, height } = pic;
+  var result = new Int32Array(width * height);
 
-  let x = 0;
-  let y = 0;
+  var oldCoordinate = 0;
+  for (let oldX = 0; oldX < width; oldX++) {
+    for (let oldY = 0; oldY < height; oldY++) {
+      const newCoordinate = getNewLocation(oldX, oldY, width, height);
 
-  for (let i = 0; i < totalChunks; i++) {
-    coordinateArray.push([x, y]);
-
-    if (x === canvasSize - chunkSize) {
-      // Next row
-      x = 0;
-      y += chunkSize;
-    } else {
-      x += chunkSize;
+      result[newCoordinate] = rgbaMatrix[oldCoordinate];
+      ++oldCoordinate;
     }
   }
 
-  const detailedCoordinates = coordinateArray.map(([x, y]) => {
-    return [
-      [x, x + chunkIncrement],
-      [y, y + chunkIncrement],
-    ];
-  });
-
-  return detailedCoordinates;
+  return { rgbaMatrix: result, width, height };
 };
 
-const turnImageLinear = (matrix) => {
-  const { length } = matrix;
-  const result = Array.from({ length }, () => []);
-
-  for (let oldX = 0; oldX < length; oldX++) {
-    for (let oldY = 0; oldY < length; oldY++) {
-      const [x, y] = getNewLocation(oldX, oldY, length);
-
-      result[x][y] = matrix[oldX][oldY];
+function* generateChunks(canvasSize, chunkSize) {
+  for (let x = 0; x < canvasSize; x += chunkSize) {
+    for (let y = 0; y < canvasSize; y += chunkSize) {
+      yield { x, y };
     }
   }
+}
 
-  // return result;
-};
+const turnImageByChunk = (matrix, chunkCoordinates, chunkSize) => {
+  var { rgbaMatrix, width, height } = matrix;
+  var result = new Int32Array(width * height);
 
-const turnImageByChunk = (matrix, chunkCoordinates) => {
-  const { length } = matrix;
-  const result = Array.from({ length }, () => []);
+  for (let imgX = 0; imgX < width; imgX += chunkSize) {
+    for (let imgY = 0; imgY < width; imgY += chunkSize) {
+      for (let incX = 0; incX < chunkSize; incX++) {
+        let oldX = imgX + incX;
+        for (let incY = 0; incY < chunkSize; incY++) {
+          let oldY = (imgY + incY) | 0;
 
-  chunkCoordinates.forEach(([coordinatesX, coordinatesY]) => {
-    const [beginChunkX, endChunkX] = coordinatesX;
-    const [beginChunkY, endChunkY] = coordinatesY;
+          const newCoordinate = getNewLocation(oldX, oldY, width);
 
-    for (let oldX = beginChunkY; oldX < endChunkY; oldX++) {
-      for (let oldY = beginChunkX; oldY < endChunkX; oldY++) {
-        const [x, y] = getNewLocation(oldX, oldY, length);
-
-        result[x][y] = matrix[oldX][oldY];
+          result[newCoordinate] = matrix[oldX + oldY * width];
+        }
       }
     }
-  });
-
-  // return result;
+  }
+  return result;
 };
 
 export { turnImageLinear, turnImageByChunk, generateChunks };

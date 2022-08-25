@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore output/ src/index"
+    "dev": "nodemon --ignore output/ src/index",
+    "try": "node src/index"
   },
   "devDependencies": {
     "lodash.flattendeep": "^4.4.0",

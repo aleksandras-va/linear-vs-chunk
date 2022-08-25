@@ -1,5 +1,4 @@
 import Jimp from 'jimp';
-import { writeArray } from './utils/writeArray.js';
 
 /**
  *
@@ -32,15 +31,9 @@ const imageToMatrix = async (input, output) => {
     return rgbaMatrix;
   };
 
-  const imageToRgbaMatrix = (imageSrc) => {
-    return readImage(imageSrc).then(scanToRgbaMatrix);
-  };
+  const imageToRgbaMatrix = readImage(input).then(scanToRgbaMatrix);
 
-  const matrix = await imageToRgbaMatrix(input);
-  return await imageToRgbaMatrix(input);
-  writeArray(output, matrix);
-
-  console.info(input, 'written');
+  return await imageToRgbaMatrix;
 };
 
 export { imageToMatrix };

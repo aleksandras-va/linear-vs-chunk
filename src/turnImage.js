@@ -42,7 +42,7 @@ const turnImageLinear = (matrix) => {
     }
   }
 
-  return result;
+  // return result;
 };
 
 const turnImageByChunk = (matrix, chunkCoordinates) => {
@@ -62,7 +62,7 @@ const turnImageByChunk = (matrix, chunkCoordinates) => {
     }
   });
 
-  return result;
+  // return result;
 };
 
 export { turnImageLinear, turnImageByChunk, generateChunks };

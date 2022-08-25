@@ -4,16 +4,16 @@ import { generateChunks, turnImageLinear, turnImageByChunk } from './turnImage.j
 import { measurePerformance } from './utils/measurePerformance.js';
 
 const performanceMeasure = async () => {
-  const matrix = await imageToMatrix('./public/shore-4000-min.png');
+  const matrix = await imageToMatrix('./public/shore-4000.png');
   const { length: imageSize } = matrix;
   const chunkSize = imageSize / 10;
   const chunkCoordinates = generateChunks(imageSize, chunkSize);
 
-  const turnedImageLinear = measurePerformance(turnImageLinear, [matrix]);
   const turnedImageByChunk = measurePerformance(turnImageByChunk, [matrix, chunkCoordinates]);
+  const turnedImageLinear = measurePerformance(turnImageLinear, [matrix]);
 
-  matrixToImage(turnedImageLinear, 'linear');
-  matrixToImage(turnedImageByChunk, 'by-chunk');
+  // matrixToImage(turnedImageLinear, 'linear');
+  // matrixToImage(turnedImageByChunk, 'by-chunk');
 };
 
 performanceMeasure();

@@ -1,4 +1,5 @@
 import Jimp from 'jimp';
+import { writeArray } from './utils/writeArray.js';
 
 /**
  *
@@ -11,29 +12,33 @@ const imageToMatrix = async (input, output) => {
   };
 
   const scanToRgbaMatrix = (jimpImage) => {
-    const rgbaMatrix = [];
+    var bmp = jimpImage.bitmap;
+    const rgbaMatrix = new Int32Array(bmp.width * bmp.height);
+    var w = bmp.width;
 
     const pixelHandler = (x, y, idx) => {
+      const blue = jimpImage.bitmap.data[idx + 0];
       const green = jimpImage.bitmap.data[idx + 1];
-      const red = jimpImage.bitmap.data[idx + 0];
-      const blue = jimpImage.bitmap.data[idx + 2];
+      const red = jimpImage.bitmap.data[idx + 2];
       const alpha = jimpImage.bitmap.data[idx + 3];
-
-      if (!rgbaMatrix[y]) {
-        rgbaMatrix[y] = [];
-      }
-
-      rgbaMatrix[y][x] = [red, green, blue, alpha];
+      const pixelData = red + (green << 8) + (blue << 16) + (alpha << 24);
+      rgbaMatrix[w * y + x] = pixelData;
     };
 
     jimpImage.scan(0, 0, jimpImage.bitmap.width, jimpImage.bitmap.height, pixelHandler.bind(this));
 
-    return rgbaMatrix;
+    return { rgbaMatrix, width: bmp.width, height: bmp.height };
   };
 
-  const imageToRgbaMatrix = readImage(input).then(scanToRgbaMatrix);
+  const imageToRgbaMatrix = (imageSrc) => {
+    return readImage(imageSrc).then(scanToRgbaMatrix);
+  };
 
-  return await imageToRgbaMatrix;
+  const matrix = await imageToRgbaMatrix(input);
+  return await imageToRgbaMatrix(input);
+  writeArray(output, matrix);
+
+  console.info(input, 'written');
 };
 
 export { imageToMatrix };
